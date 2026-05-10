@@ -24,15 +24,9 @@ namespace OmniExtractionToolkit.Features
 
                     if (v != null && (!isEquippable || isShop))
                     {
+                        // WYSIWYG: Showing raw units to match vanilla HUD/Goal numbers
                         float val = Traverse.Create(v).Field<float>("dollarValueCurrent").Value;
-                        if (OmniExtractionToolkitPlugin.ShowActualCurrency.Value)
-                        {
-                            message += $" <color=#00FF00>(${val/1000f:F1})</color>";
-                        }
-                        else
-                        {
-                            message += $" <color=#00FF00>(${val})</color>";
-                        }
+                        message += $" <color=#00FF00>(${val:F0})</color>";
                         return;
                     }
 
@@ -42,14 +36,7 @@ namespace OmniExtractionToolkit.Features
                         int val = Traverse.Create(_itemAttributes).Field<int>("value").Value;
                         if (val > 0)
                         {
-                            if (OmniExtractionToolkitPlugin.ShowActualCurrency.Value)
-                            {
-                                message += $" <color=#00FF00>(${val/1000f:F1})</color>";
-                            }
-                            else
-                            {
-                                message += $" <color=#00FF00>(${val})</color>";
-                            }
+                            message += $" <color=#00FF00>(${val:F0})</color>";
                         }
                     }
                 }
@@ -60,6 +47,8 @@ namespace OmniExtractionToolkit.Features
         [HarmonyPatch(typeof(PhysGrabber), "RayCheck")]
         public static class PhysGrabber_RayCheck_Patch
         {
+            // FIX: Reset 'looking at' fields before the game performs its raycast
+            // This prevents old items from being "stuck" on screen when looking at nothing
             static void Prefix(PhysGrabber __instance)
             {
                 Traverse t = Traverse.Create(__instance);
@@ -80,15 +69,7 @@ namespace OmniExtractionToolkit.Features
                     {
                         float val = Traverse.Create(v).Field<float>("dollarValueCurrent").Value;
                         string name = o.gameObject.name.Replace("(Clone)", "").Trim();
-                        
-                        if (OmniExtractionToolkitPlugin.ShowActualCurrency.Value)
-                        {
-                            SemiFunc.UIItemInfoText(null, $"{name} <color=#00FF00>(${val/1000f:F1})</color>");
-                        }
-                        else
-                        {
-                            SemiFunc.UIItemInfoText(null, $"{name} <color=#00FF00>(${val})</color>");
-                        }
+                        SemiFunc.UIItemInfoText(null, $"{name} <color=#00FF00>(${val:F0})</color>");
                     }
                 }
             }

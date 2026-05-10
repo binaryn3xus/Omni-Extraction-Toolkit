@@ -134,14 +134,8 @@ namespace OmniExtractionToolkit.Features
                     int total = t.Field("haulGoalMax").GetValue<int>();
                     int goal = t.Field("haulGoal").GetValue<int>();
                     
-                    if (OmniExtractionToolkitPlugin.ShowActualCurrency.Value)
-                    {
-                        mapText.text = $"<color=white>Haul: <color=yellow>${current/1000f:F1}</color> / Goal: ${goal/1000f:F1}\nMap Total: <color=green>${total/1000f:F1}</color></color>";
-                    }
-                    else
-                    {
-                        mapText.text = $"<color=white>Haul: <color=yellow>${current}</color> / Goal: ${goal}\nMap Total: <color=green>${total}</color></color>";
-                    }
+                    // REVERTED: Matching raw units to vanilla HUD ($1,327 etc)
+                    mapText.text = $"<color=white>Haul: <color=yellow>${current}</color> / Goal: ${goal}\nMap Total: <color=green>${total}</color></color>";
                 } else {
                     mapText.text = ""; 
                 }
@@ -176,14 +170,7 @@ namespace OmniExtractionToolkit.Features
                 heldItemText.gameObject.SetActive(showHeld);
                 if (showHeld)
                 {
-                    if (OmniExtractionToolkitPlugin.ShowActualCurrency.Value)
-                    {
-                        heldItemText.text = $"{name} <color=#00FF00>(${val/1000f:F1})</color>";
-                    }
-                    else
-                    {
-                        heldItemText.text = $"{name} <color=#00FF00>(${val})</color>";
-                    }
+                    heldItemText.text = $"{name} <color=#00FF00>(${val:F0})</color>";
                 } else {
                     heldItemText.text = "";
                 }

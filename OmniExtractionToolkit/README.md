@@ -21,7 +21,7 @@ Keep your eyes on the job, not the truck monitor.
 * **Real-time Stats:** Track your current **Haul**, the **Round Goal**, and the **Map Total** (potential value of all loot on the level) at a glance.
 * **Held Item Readout:** When you grab a valuable, its name and price pop up at the bottom of the screen. (Hidden for weapons and tools to keep your view clear).
 * **Clean Transitions:** The HUD automatically hides during loading screens, round intros, or whenever you open a menu.
-* **Currency Mode:** A toggle in the settings lets you choose between raw "units" or "Actual Currency" (what ends up in your bank account).
+* **WYSIWYG Dollars:** All HUD and hover values are automatically converted to show exactly how much money will end up in your pocket.
 
 ### Shared Lobby Upgrades
 Progress as a team. When anyone in the lobby buys an upgrade (Health, Stamina, Speed, etc.), **every player receives it instantly.**

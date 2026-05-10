@@ -19,7 +19,6 @@ namespace OmniExtractionToolkit
         public static ConfigEntry<float> HUDX;
         public static ConfigEntry<float> HUDY;
         public static ConfigEntry<bool> ShowHeldItem;
-        public static ConfigEntry<bool> ShowActualCurrency;
         
         // --- SHARED UPGRADES SETTINGS ---
         public static ConfigEntry<bool> ShareUpgrades;
@@ -66,7 +65,6 @@ namespace OmniExtractionToolkit
             HUDX = Config.Bind("HUD", "Horizontal Position", 100f, new ConfigDescription("X% (0=Left, 100=Right)", new AcceptableValueRange<float>(0f, 100f)));
             HUDY = Config.Bind("HUD", "Vertical Position", 0f, new ConfigDescription("Y% (0=Bottom, 100=Top)", new AcceptableValueRange<float>(0f, 100f)));
             ShowHeldItem = Config.Bind("HUD", "Show Held Item Value", true, "Show the name and value of the item you are currently holding (Valuables only).");
-            ShowActualCurrency = Config.Bind("HUD", "Show Actual Currency", false, "Divide HUD values by 1000 to show the actual money you will receive.");
 
             // Shared Upgrades
             ShareUpgrades = Config.Bind("Shared Upgrades", "Master Toggle", true);
