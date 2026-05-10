@@ -1,0 +1,43 @@
+name: Publish to Thunderstore
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up staging directory
+        run: |
+          mkdir -p dist/BepInEx/plugins
+          cp OmniExtractionToolkit/manifest.json dist/
+          cp OmniExtractionToolkit/README.md dist/
+          cp OmniExtractionToolkit/icon.png dist/ || echo "Warning: icon.png missing"
+          # This workflow assumes you have built the DLL locally and placed it in a 'staging' folder 
+          # or you are committing the DLL for the purpose of CI deployment.
+          # Alternatively, we can assume the DLL is in the bin/ folder if it was committed.
+          cp OmniExtractionToolkit/bin/Debug/net48/OmniExtractionToolkit.dll dist/BepInEx/plugins/
+
+      - name: Upload to Thunderstore
+        uses: GreenTF/upload-thunderstore-package@v4.3
+        with:
+          token: ${{ secrets.THUNDERSTORE_TOKEN }}
+          community: "repo"
+          namespace: "binaryn3xus"
+          name: "Omni_Extraction_Toolkit"
+          version: ${{ github.ref_name }}
+          description: "Essential R.E.P.O. suite: manual gold scanner, dynamic HUD, and profit-buffing loot damage. Includes shared lobby upgrades and infinite resource cheats (Host required for sharing/multipliers). Modular and team-safe."
+          categories: |
+            ai-generated
+            server-side
+            client-side
+            weapons
+            upgrades
+            valuables
+            mods
+          path: ./dist
