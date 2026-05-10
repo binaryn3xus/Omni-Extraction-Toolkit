@@ -1,0 +1,21 @@
+# Build artifacts
+**/bin/
+**/obj/
+OmniExtractionToolkit/bin/
+OmniExtractionToolkit/obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.doccache
+
+# Log files
+*.log
+
+# Reference source
+ExampleMods/
+GameSource/
+
+# OS generated files
+.DS_Store
+Thumbs.db
