@@ -47,8 +47,6 @@ namespace OmniExtractionToolkit.Features
         [HarmonyPatch(typeof(PhysGrabber), "RayCheck")]
         public static class PhysGrabber_RayCheck_Patch
         {
-            // FIX: Reset 'looking at' fields before the game performs its raycast
-            // This prevents old items from being "stuck" on screen when looking at nothing
             static void Prefix(PhysGrabber __instance)
             {
                 Traverse t = Traverse.Create(__instance);
@@ -72,6 +70,29 @@ namespace OmniExtractionToolkit.Features
                         SemiFunc.UIItemInfoText(null, $"{name} <color=#00FF00>(${val:F0})</color>");
                     }
                 }
+            }
+        }
+    }
+
+    // --- VANILLA BUG FIXES ---
+    // These patches fix errors in the base game that are triggered by modded playstyles.
+    public static class VanillaFixPatches
+    {
+        [HarmonyPatch(typeof(ShopRadio), "Update")]
+        public static class ShopRadio_Update_Patch
+        {
+            static bool Prefix(ShopRadio __instance)
+            {
+                // Fix for "Do not create your own module instances" error.
+                // This happens in vanilla when a radio is destroyed but the Update loop keeps running.
+                
+                PhysGrabObject pObj = Traverse.Create(__instance).Field<PhysGrabObject>("physGrabObject").Value;
+                if (pObj != null && pObj.dead) return false; // Stop updating if dead
+
+                ParticleSystem smoke = Traverse.Create(__instance).Field<ParticleSystem>("smoke").Value;
+                if (smoke == null || smoke.gameObject == null) return false; // Stop if smoke is missing/destroyed
+
+                return true;
             }
         }
     }

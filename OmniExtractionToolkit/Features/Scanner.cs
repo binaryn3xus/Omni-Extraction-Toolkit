@@ -34,26 +34,35 @@ namespace OmniExtractionToolkit.Features
             float radius = OmniExtractionToolkitPlugin.ScanRadius.Value;
             int count = 0;
 
-            Collider[] colliders = Physics.OverlapSphere(pos, radius, SemiFunc.LayerMaskGetPhysGrabObject());
+            int mask = SemiFunc.LayerMaskGetPhysGrabObject();
+            Collider[] colliders = Physics.OverlapSphere(pos, radius, mask);
+
             foreach (Collider col in colliders)
             {
+                // 1. Check for standard ValuableObjects
                 ValuableObject valObj = col.GetComponentInParent<ValuableObject>();
                 if (valObj != null)
                 {
                     PhysGrabObject pObj = Traverse.Create(valObj).Field<PhysGrabObject>("physGrabObject").Value;
                     if (pObj != null)
                     {
-                        ValuableDiscover.instance.New(pObj, ValuableDiscoverGraphic.State.Discover, null);
-                        count++;
+                        if (ValuableDiscover.instance != null)
+                        {
+                            ValuableDiscover.instance.New(pObj, ValuableDiscoverGraphic.State.Discover, null);
+                            count++;
+                        }
                     }
+                    continue;
                 }
-                else
+
+                // 2. Check for Custom Discoverables
+                ValuableDiscoverCustom valCust = col.GetComponentInParent<ValuableDiscoverCustom>();
+                if (valCust != null)
                 {
-                    ValuableDiscoverCustom valCust = col.GetComponentInParent<ValuableDiscoverCustom>();
-                    if (valCust != null)
+                    PhysGrabObject pObj = Traverse.Create(valCust).Field<PhysGrabObject>("physGrabObject").Value;
+                    if (pObj != null)
                     {
-                        PhysGrabObject pObj = Traverse.Create(valCust).Field<PhysGrabObject>("physGrabObject").Value;
-                        if (pObj != null)
+                        if (ValuableDiscover.instance != null)
                         {
                             ValuableDiscover.instance.New(pObj, ValuableDiscoverGraphic.State.Discover, valCust);
                             count++;
@@ -68,7 +77,7 @@ namespace OmniExtractionToolkit.Features
                 SemiFunc.UIItemInfoText(null, "Area scanned. No new items found.");
         }
 
-        // --- BUILT-IN TRACKER ENHANCEMENT ---
+        // --- BUILT-IN TRACKER ENHANCEMENT (Range Boost) ---
         [HarmonyPatch(typeof(ItemTracker), "ValuableTarget")]
         public static class TrackerRange_Patch
         {
@@ -85,12 +94,20 @@ namespace OmniExtractionToolkit.Features
                 if (nozzle == null) return true;
 
                 Vector3 pos = nozzle.position;
-                Collider[] cols = Physics.OverlapSphere(pos, 500f, SemiFunc.LayerMaskGetPhysGrabObject());
-                PhysGrabObject bestO = null; ValuableObject bestV = null; ValuableDiscoverCustom bestC = null; float minD = float.MaxValue;
+                float radius = 500f;
+
+                Collider[] cols = Physics.OverlapSphere(pos, radius, SemiFunc.LayerMaskGetPhysGrabObject());
+                PhysGrabObject bestO = null; 
+                ValuableObject bestV = null; 
+                ValuableDiscoverCustom bestC = null; 
+                float minD = float.MaxValue;
 
                 foreach (Collider col in cols)
                 {
-                    ValuableObject v = col.GetComponentInParent<ValuableObject>(); ValuableDiscoverCustom c = null; PhysGrabObject p = null;
+                    PhysGrabObject p = null;
+                    ValuableObject v = col.GetComponentInParent<ValuableObject>(); 
+                    ValuableDiscoverCustom c = null;
+
                     if (v != null) { 
                         if (!Traverse.Create(v).Field<bool>("discovered").Value) 
                             p = Traverse.Create(v).Field<PhysGrabObject>("physGrabObject").Value; 
@@ -103,8 +120,13 @@ namespace OmniExtractionToolkit.Features
                     
                     if (p != null) { 
                         float d = Vector3.Distance(pos, p.midPoint); 
-                        PhysGrabObjectImpactDetector id = Traverse.Create(p).Field<PhysGrabObjectImpactDetector>("impactDetector").Value; 
-                        if (d < minD && !p.grabbed && !(id != null && id.inCart)) { minD = d; bestO = p; bestV = v; bestC = c; } 
+                        PhysGrabObjectImpactDetector id = Traverse.Create(p).Field<PhysGrabObjectImpactDetector>("impactDetector").Value;
+                        if (d < minD && !p.grabbed && id != null && !id.inCart) { 
+                            minD = d; 
+                            bestO = p; 
+                            bestV = v; 
+                            bestC = c; 
+                        } 
                     }
                 }
 
@@ -114,9 +136,15 @@ namespace OmniExtractionToolkit.Features
                     t.Field("currentTargetValuable").SetValue(bestV); 
                     t.Field("currentTargetValuableCustom").SetValue(bestC); 
                     t.Field("hasTarget").SetValue(true); 
-                    PhotonView pv = Traverse.Create(bestO).Field<PhotonView>("photonView").Value; 
-                    if (pv != null) AccessTools.Method(typeof(ItemTracker), "SetTarget").Invoke(__instance, new object[] { pv.ViewID }); 
-                } else t.Field("hasTarget").SetValue(false);
+                    
+                    PhotonView pv = Traverse.Create(bestO).Field<PhotonView>("photonView").Value;
+                    if (pv != null)
+                    {
+                        t.Method("SetTarget", new object[] { pv.ViewID }).GetValue();
+                    }
+                } else {
+                    t.Field("hasTarget").SetValue(false);
+                }
 
                 return false;
             }

@@ -18,24 +18,46 @@ namespace OmniExtractionToolkit.Features
                 ValuableObject valObj = Traverse.Create(__instance).Field<ValuableObject>("valuableObject").Value;
                 if (_loseValue && valObj != null)
                 {
+                    float multiplier = OmniExtractionToolkitPlugin.DamageMultiplier.Value;
+                    
                     Traverse tVal = Traverse.Create(valObj);
                     float currentVal = tVal.Field<float>("dollarValueCurrent").Value;
                     float originalVal = tVal.Field<float>("dollarValueOriginal").Value;
 
-                    float scalingRatio = (originalVal > 0) ? (currentVal / originalVal) : 1f;
-                    valueLost *= scalingRatio * OmniExtractionToolkitPlugin.DamageMultiplier.Value;
+                    // 1. Only apply compounding scaling if we are in "Buff Mode" (Multiplier is negative)
+                    // If we are doing normal damage, we don't want the items to explode instantly.
+                    if (multiplier < 0)
+                    {
+                        float scalingRatio = (originalVal > 0) ? (currentVal / originalVal) : 1f;
+                        valueLost *= scalingRatio * multiplier;
+                    }
+                    else
+                    {
+                        valueLost *= multiplier;
+                    }
 
+                    // 2. Prevent item value from exceeding $1B
                     float newVal = currentVal - valueLost;
                     if (newVal > 1000000000f)
                     {
                         valueLost = currentVal - 1000000000f;
                     }
 
+                    // 3. Update the Map Total (haulGoalMax) - LIVE FEEDBACK
                     if (RoundDirector.instance != null)
                     {
                         Traverse t = Traverse.Create(RoundDirector.instance);
-                        int currentMax = t.Field<int>("haulGoalMax").Value;
-                        t.Field("haulGoalMax").SetValue(currentMax - (int)valueLost);
+                        long currentMax = t.Field<int>("haulGoalMax").Value;
+                        
+                        // valueLost is positive for damage (decreases total) 
+                        // and negative for buffs (increases total)
+                        long newMax = currentMax - (int)valueLost; 
+                        
+                        // Safety Clamps: Ensure Map Total stays within 0 and 2.1B (Max Int32)
+                        if (newMax > 2100000000) newMax = 2100000000;
+                        if (newMax < 0) newMax = 0;
+
+                        t.Field("haulGoalMax").SetValue((int)newMax);
                     }
                 }
             }
