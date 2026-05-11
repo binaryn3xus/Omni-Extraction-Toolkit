@@ -7,7 +7,7 @@ using UnityEngine;
 namespace OmniExtractionToolkit
 {
     [BepInDependency("nickklmao.repoconfig")]
-    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.1")]
+    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.2")]
     public class OmniExtractionToolkitPlugin : BaseUnityPlugin
     {
         // --- SCANNER SETTINGS ---
