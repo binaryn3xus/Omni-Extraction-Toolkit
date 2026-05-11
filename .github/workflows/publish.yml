@@ -24,33 +24,43 @@ jobs:
           FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           script: |
-            let release_id;
             const target_tag = context.payload.inputs ? context.payload.inputs.tag : (context.payload.release ? context.payload.release.tag_name : null);
+            if (!target_tag) throw new Error("Could not determine target tag.");
             
-            if (context.payload.release) {
-              release_id = context.payload.release.id;
-            } else if (target_tag) {
-              console.log(`Searching for release with tag: ${target_tag}`);
+            console.log(`Target tag: ${target_tag}`);
+            
+            let release_id;
+            // Always fetch the release by tag to ensure we have the most up-to-date metadata
+            try {
               const release = await github.rest.repos.getReleaseByTag({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 tag: target_tag,
               });
               release_id = release.data.id;
+              console.log(`Found Release ID: ${release_id}`);
+            } catch (e) {
+              throw new Error(`Could not find a release for tag ${target_tag}. Did you create it?`);
             }
 
-            if (!release_id) throw new Error("Could not determine Release ID.");
+            // RETRY LOOP: Wait for GitHub to finish processing the upload
+            let asset = null;
+            for (let i = 0; i < 12; i++) { // Try for 60 seconds
+              const assets = await github.rest.repos.listReleaseAssets({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release_id,
+              });
+              
+              asset = assets.data.find(a => a.name.toLowerCase().endsWith('.zip'));
+              if (asset) break;
+              
+              console.log(`Waiting for zip asset... (Attempt ${i+1}/12)`);
+              await new Promise(r => setTimeout(r, 5000));
+            }
 
-            const assets = await github.rest.repos.listReleaseAssets({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: release_id,
-            });
-            
-            const asset = assets.data.find(a => a.name.toLowerCase().endsWith('.zip'));
             if (!asset) {
-              console.log("Current assets found:", assets.data.map(a => a.name));
-              throw new Error(`No .zip asset found in release ${target_tag}!`);
+              throw new Error(`No .zip asset found in release ${target_tag} after 60 seconds.`);
             }
             
             console.log(`Downloading asset: ${asset.name}`);
