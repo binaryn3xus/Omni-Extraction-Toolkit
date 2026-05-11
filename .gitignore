@@ -15,6 +15,7 @@ OmniExtractionToolkit/obj/
 # Reference source
 ExampleMods/
 GameSource/
+Upload/
 
 # OS generated files
 .DS_Store

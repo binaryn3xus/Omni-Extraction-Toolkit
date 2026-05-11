@@ -1,9 +1,8 @@
 name: Publish to Thunderstore
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 
 jobs:
   publish:
@@ -12,16 +11,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up staging directory
-        run: |
-          mkdir -p dist/BepInEx/plugins
-          cp OmniExtractionToolkit/manifest.json dist/
-          cp OmniExtractionToolkit/README.md dist/
-          cp OmniExtractionToolkit/icon.png dist/ || echo "Warning: icon.png missing"
-          # This workflow assumes you have built the DLL locally and placed it in a 'staging' folder 
-          # or you are committing the DLL for the purpose of CI deployment.
-          # Alternatively, we can assume the DLL is in the bin/ folder if it was committed.
-          cp OmniExtractionToolkit/bin/Debug/net48/OmniExtractionToolkit.dll dist/BepInEx/plugins/
+      - name: Download Release Asset
+        id: download_asset
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const assets = await github.rest.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+            });
+            const asset = assets.data.find(a => a.name.endsWith('.zip'));
+            if (!asset) throw new Error("No .zip asset found in release!");
+            
+            const fs = require('fs');
+            const data = await github.rest.repos.getReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              asset_id: asset.id,
+              headers: { accept: 'application/octet-stream' }
+            });
+            fs.writeFileSync('mod_package.zip', Buffer.from(data.data));
 
       - name: Upload to Thunderstore
         uses: GreenTF/upload-thunderstore-package@v4.3
@@ -30,14 +40,5 @@ jobs:
           community: "repo"
           namespace: "binaryn3xus"
           name: "Omni_Extraction_Toolkit"
-          version: ${{ github.ref_name }}
-          description: "Essential R.E.P.O. suite: manual gold scanner, dynamic HUD, and profit-buffing loot damage. Includes shared lobby upgrades and infinite resource cheats (Host required for sharing/multipliers). Modular and team-safe."
-          categories: |
-            ai-generated
-            server-side
-            client-side
-            weapons
-            upgrades
-            valuables
-            mods
-          path: ./dist
+          version: ${{ github.event.release.tag_name }}
+          file: ./mod_package.zip
