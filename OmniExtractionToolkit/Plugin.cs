@@ -7,7 +7,7 @@ using UnityEngine;
 namespace OmniExtractionToolkit
 {
     [BepInDependency("nickklmao.repoconfig")]
-    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.3")]
+    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.4")]
     public class OmniExtractionToolkitPlugin : BaseUnityPlugin
     {
         // --- SCANNER SETTINGS ---
@@ -19,7 +19,7 @@ namespace OmniExtractionToolkit
         public static ConfigEntry<float> HUDX;
         public static ConfigEntry<float> HUDY;
         public static ConfigEntry<bool> ShowHeldItem;
-        
+
         // --- TEAM UPGRADES SETTINGS (HOST ONLY) ---
         public static ConfigEntry<bool> ShareUpgrades;
         public static ConfigEntry<bool> ShareHealth;
@@ -34,7 +34,8 @@ namespace OmniExtractionToolkit
         public static ConfigEntry<bool> ShareCrouchRest;
         public static ConfigEntry<bool> ShareThrowStrength;
 
-        // --- CHEAT SETTINGS (LOCAL) ---
+        // --- CHEAT SETTINGS (CLIENT-SIDE) ---
+        public static ConfigEntry<bool> InfiniteHealth;
         public static ConfigEntry<bool> InfiniteBattery;
         public static ConfigEntry<bool> InfiniteStamina;
         public static ConfigEntry<float> JumpHeightMultiplier;
@@ -91,6 +92,7 @@ namespace OmniExtractionToolkit
             ShareThrowStrength = Config.Bind("Team Upgrades (Host Only)", "Throw Strength Upgrade", true);
 
             // Cheats (Client-Side)
+            InfiniteHealth = Config.Bind("Cheats (Client-Side)", "Infinite Health", false, "Health bar stays at 100%. (Still feel damage effects)");
             InfiniteBattery = Config.Bind("Cheats (Client-Side)", "Infinite Battery & Ammo", false, "All tools and weapons stay at 100% charge.");
             InfiniteStamina = Config.Bind("Cheats (Client-Side)", "Infinite Stamina", false, "Never run out of energy while sprinting.");
             JumpHeightMultiplier = Config.Bind("Cheats (Client-Side)", "Jump Height Multiplier", 1.0f, new ConfigDescription("Increase player jump height.", new AcceptableValueRange<float>(1f, 5f)));

@@ -9,6 +9,31 @@ namespace OmniExtractionToolkit.Features
 {
     public static class CheatPatches
     {
+        // --- INFINITE HEALTH ---
+        [HarmonyPatch(typeof(PlayerHealth), "Update")]
+        public static class InfiniteHealth_Patch
+        {
+            static void Postfix(PlayerHealth __instance)
+            {
+                if (!OmniExtractionToolkitPlugin.InfiniteHealth.Value) return;
+
+                Traverse t = Traverse.Create(__instance);
+                PlayerAvatar avatar = t.Field<PlayerAvatar>("playerAvatar").Value;
+
+                // Ensure we only refill the local player's health
+                if (avatar != null && Traverse.Create(avatar).Field<bool>("isLocal").Value)
+                {
+                    int currentHealth = t.Field<int>("health").Value;
+                    int maxHealth = t.Field<int>("maxHealth").Value;
+
+                    if (currentHealth < maxHealth)
+                    {
+                        t.Field("health").SetValue(maxHealth);
+                    }
+                }
+            }
+        }
+
         // --- LOOT DAMAGE & REVERSE DAMAGE ---
         [HarmonyPatch(typeof(PhysGrabObjectImpactDetector), "BreakRPC")]
         public static class LootDamage_Patch
@@ -64,8 +89,7 @@ namespace OmniExtractionToolkit.Features
         {
             static void Postfix(PlayerController __instance)
             {
-                // Correct field name is JumpForce (public)
-                float originalJump = 20f; // Game default
+                float originalJump = 20f;
                 __instance.JumpForce = originalJump * OmniExtractionToolkitPlugin.JumpHeightMultiplier.Value;
             }
         }

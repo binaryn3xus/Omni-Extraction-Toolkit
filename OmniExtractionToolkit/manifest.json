@@ -1,6 +1,6 @@
 {
     "name": "Omni_Extraction_Toolkit",
-    "version_number": "1.0.3",
+    "version_number": "1.0.4",
     "website_url": "https://github.com/binaryn3xus/Omni-Extraction-Toolkit/",
     "description": "Essential R.E.P.O. suite: manual gold scanner, dynamic HUD, and profit-buffing loot damage. Includes shared lobby upgrades, cart shrinking, and infinite resource cheats (Host required for sharing/scaling). Modular and team-safe.",
     "dependencies": [

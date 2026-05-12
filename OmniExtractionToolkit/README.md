@@ -40,6 +40,7 @@ Maximize your carrying capacity by shrinking items once they are placed in a car
 
 ## 😈 Gameplay Tweaks (Cheats)
 
+* **Infinite Health:** Your health bar stays at 100%. You will still feel damage effects (screen glitch, sound), but you will never lose health.
 * **Reverse Damage (Profit Buffing):** Set the "Loot Damage Multiplier" to a negative number (e.g., -2.0). Now, slamming items against walls actually **increases their value**. Turn a cheap $100 plate into a massive jackpot just by beating it up. (Value is safely capped to prevent integer overflows).
 * **Infinite Resources:** Toggleable infinite battery/ammo for all tools and weapons, and infinite player stamina for endless sprinting.
 * **Mobility Tweaks:** Adjustable Jump Height multiplier.
