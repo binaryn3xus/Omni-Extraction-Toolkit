@@ -7,7 +7,7 @@ using UnityEngine;
 namespace OmniExtractionToolkit
 {
     [BepInDependency("nickklmao.repoconfig")]
-    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.2")]
+    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.3")]
     public class OmniExtractionToolkitPlugin : BaseUnityPlugin
     {
         // --- SCANNER SETTINGS ---
@@ -20,7 +20,7 @@ namespace OmniExtractionToolkit
         public static ConfigEntry<float> HUDY;
         public static ConfigEntry<bool> ShowHeldItem;
         
-        // --- SHARED UPGRADES SETTINGS ---
+        // --- TEAM UPGRADES SETTINGS (HOST ONLY) ---
         public static ConfigEntry<bool> ShareUpgrades;
         public static ConfigEntry<bool> ShareHealth;
         public static ConfigEntry<bool> ShareEnergy;
@@ -34,10 +34,20 @@ namespace OmniExtractionToolkit
         public static ConfigEntry<bool> ShareCrouchRest;
         public static ConfigEntry<bool> ShareThrowStrength;
 
-        // --- CHEAT SETTINGS ---
+        // --- CHEAT SETTINGS (LOCAL) ---
         public static ConfigEntry<bool> InfiniteBattery;
         public static ConfigEntry<bool> InfiniteStamina;
+        public static ConfigEntry<float> JumpHeightMultiplier;
+
+        // --- CHEAT SETTINGS (HOST ONLY) ---
         public static ConfigEntry<float> DamageMultiplier;
+
+        // --- CART SHRINK SETTINGS (HOST ONLY) ---
+        public static ConfigEntry<bool> EnableCartShrink;
+        public static ConfigEntry<float> CartShrinkFactor;
+        public static ConfigEntry<float> CartShrinkSpeed;
+        public static ConfigEntry<float> CartShrinkFieldSize;
+        public static ConfigEntry<bool> EnableWeightReduction;
 
         public static ManualLogSource ModLogger;
 
@@ -66,24 +76,34 @@ namespace OmniExtractionToolkit
             HUDY = Config.Bind("HUD", "Vertical Position", 0f, new ConfigDescription("Y% (0=Bottom, 100=Top)", new AcceptableValueRange<float>(0f, 100f)));
             ShowHeldItem = Config.Bind("HUD", "Show Held Item Value", true, "Show the name and value of the item you are currently holding (Valuables only).");
 
-            // Shared Upgrades
-            ShareUpgrades = Config.Bind("Shared Upgrades", "Master Toggle", true);
-            ShareHealth = Config.Bind("Shared Upgrades", "Share Health", true);
-            ShareEnergy = Config.Bind("Shared Upgrades", "Share Energy", true);
-            ShareSprint = Config.Bind("Shared Upgrades", "Share Sprint Speed", true);
-            ShareGrabStrength = Config.Bind("Shared Upgrades", "Share Grab Strength", true);
-            ShareGrabRange = Config.Bind("Shared Upgrades", "Share Grab Range", true);
-            ShareExtraJump = Config.Bind("Shared Upgrades", "Share Extra Jump", true);
-            ShareTumble = Config.Bind("Shared Upgrades", "Share Tumble Launch", true);
-            ShareTumbleClimb = Config.Bind("Shared Upgrades", "Share Tumble Climb", true);
-            ShareTumbleWings = Config.Bind("Shared Upgrades", "Share Tumble Wings", true);
-            ShareCrouchRest = Config.Bind("Shared Upgrades", "Share Crouch Rest", true);
-            ShareThrowStrength = Config.Bind("Shared Upgrades", "Share Throw Strength", true);
+            // Team Upgrades (Host Only)
+            ShareUpgrades = Config.Bind("Team Upgrades (Host Only)", "Master Toggle", false, "When enabled, any upgrade anyone buys is shared with everyone.");
+            ShareHealth = Config.Bind("Team Upgrades (Host Only)", "Health Upgrade", true);
+            ShareEnergy = Config.Bind("Team Upgrades (Host Only)", "Energy Upgrade", true);
+            ShareSprint = Config.Bind("Team Upgrades (Host Only)", "Sprint Speed Upgrade", true);
+            ShareGrabStrength = Config.Bind("Team Upgrades (Host Only)", "Grab Strength Upgrade", true);
+            ShareGrabRange = Config.Bind("Team Upgrades (Host Only)", "Grab Range Upgrade", true);
+            ShareExtraJump = Config.Bind("Team Upgrades (Host Only)", "Extra Jump Upgrade", true);
+            ShareTumble = Config.Bind("Team Upgrades (Host Only)", "Tumble Launch Upgrade", true);
+            ShareTumbleClimb = Config.Bind("Team Upgrades (Host Only)", "Tumble Climb Upgrade", true);
+            ShareTumbleWings = Config.Bind("Team Upgrades (Host Only)", "Tumble Wings Upgrade", true);
+            ShareCrouchRest = Config.Bind("Team Upgrades (Host Only)", "Crouch Rest Upgrade", true);
+            ShareThrowStrength = Config.Bind("Team Upgrades (Host Only)", "Throw Strength Upgrade", true);
 
-            // Cheats
-            InfiniteBattery = Config.Bind("Cheats", "Infinite Battery & Ammo", false);
-            InfiniteStamina = Config.Bind("Cheats", "Infinite Stamina", false);
-            DamageMultiplier = Config.Bind("Cheats", "Loot Damage Multiplier", 1.0f, new ConfigDescription("Scale impact damage. Negative = increase value!", new AcceptableValueRange<float>(-5f, 10f)));
+            // Cheats (Client-Side)
+            InfiniteBattery = Config.Bind("Cheats (Client-Side)", "Infinite Battery & Ammo", false, "All tools and weapons stay at 100% charge.");
+            InfiniteStamina = Config.Bind("Cheats (Client-Side)", "Infinite Stamina", false, "Never run out of energy while sprinting.");
+            JumpHeightMultiplier = Config.Bind("Cheats (Client-Side)", "Jump Height Multiplier", 1.0f, new ConfigDescription("Increase player jump height.", new AcceptableValueRange<float>(1f, 5f)));
+
+            // Cheats (Host Only)
+            DamageMultiplier = Config.Bind("Cheats (Host Only)", "Loot Damage Multiplier", 1.0f, new ConfigDescription("Negative = increase value! Only works if YOU are the host.", new AcceptableValueRange<float>(-5f, 10f)));
+
+            // Cart Shrink (Host Only)
+            EnableCartShrink = Config.Bind("Cart Shrink (Host Only)", "Enable Cart Shrink", false, "Shrink items when they are placed in a cart.");
+            CartShrinkFactor = Config.Bind("Cart Shrink (Host Only)", "Shrink Factor", 1.0f, new ConfigDescription("How much to shrink items (0.1 = tiny, 1.0 = normal).", new AcceptableValueRange<float>(0.1f, 1f)));
+            CartShrinkSpeed = Config.Bind("Cart Shrink (Host Only)", "Shrink Speed", 3.0f, new ConfigDescription("How fast items transition between sizes (1 = slow, 20 = instant).", new AcceptableValueRange<float>(1f, 20f)));
+            CartShrinkFieldSize = Config.Bind("Cart Shrink (Host Only)", "Shrink Field Size", 1.25f, new ConfigDescription("Multiplier for the storage box detection area (1.0 = normal).", new AcceptableValueRange<float>(0.1f, 5f)));
+            EnableWeightReduction = Config.Bind("Cart Shrink (Host Only)", "Reduce Item Weight", false, "When enabled, weight is reduced proportionally to the Shrink Factor.");
         }
 
         public static string GetBindingPath(KeyCode keyCode)

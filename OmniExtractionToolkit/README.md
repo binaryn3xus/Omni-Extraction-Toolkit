@@ -19,14 +19,22 @@ Stop hunting for that last tiny plate. Press **`F`** at any time to ping every v
 Keep your eyes on the job, not the truck monitor.
 
 * **Real-time Stats:** Track your current **Haul**, the **Round Goal**, and the **Map Total** (potential value of all loot on the level) at a glance.
+* **Live Updates:** The Map Total now updates in real-time as items are damaged or buffed.
 * **Held Item Readout:** When you grab a valuable, its name and price pop up at the bottom of the screen. (Hidden for weapons and tools to keep your view clear).
 * **Clean Transitions:** The HUD automatically hides during loading screens, round intros, or whenever you open a menu.
-* **WYSIWYG Dollars:** All HUD and hover values are automatically converted to show exactly how much money will end up in your pocket.
 
-### Shared Lobby Upgrades
+### Team Upgrades (Host Only)
 Progress as a team. When anyone in the lobby buys an upgrade (Health, Stamina, Speed, etc.), **every player receives it instantly.**
 
 * Includes individual stat toggles so you can decide exactly what to share.
+
+### Cart Shrink (Host Only)
+Maximize your carrying capacity by shrinking items once they are placed in a cart.
+
+* **Smart Scaling:** Items automatically shrink when put into a cart's storage field and return to normal size when removed.
+* **Live Field:** Items shrink the moment you hold them over the cart, providing instant visual feedback.
+* **Weight Reduction:** Optional toggle to reduce the weight of items proportionally to their size, making carts much easier to push.
+* **Customizable Speed:** Adjust how fast items transition between sizes using the Shrink Speed slider.
 
 ---
 
@@ -34,6 +42,7 @@ Progress as a team. When anyone in the lobby buys an upgrade (Health, Stamina, S
 
 * **Reverse Damage (Profit Buffing):** Set the "Loot Damage Multiplier" to a negative number (e.g., -2.0). Now, slamming items against walls actually **increases their value**. Turn a cheap $100 plate into a massive jackpot just by beating it up. (Value is safely capped to prevent integer overflows).
 * **Infinite Resources:** Toggleable infinite battery/ammo for all tools and weapons, and infinite player stamina for endless sprinting.
+* **Mobility Tweaks:** Adjustable Jump Height multiplier.
 
 ---
 
@@ -42,8 +51,6 @@ Progress as a team. When anyone in the lobby buys an upgrade (Health, Stamina, S
 Everything is handled through the **REPOConfig** menu in-game.
 
 * **HUD Fine-Tuning:** Use 0-100% sliders to move the HUD anywhere on your screen.
-    * **Horizontal:** 0 (Left) to 100 (Right). **Default: 100**
-    * **Vertical:** 0 (Bottom) to 100 (Top). **Default: 0**
 * **Scanner Control:** Adjust your scan radius (1m–100m) and cooldown times.
 * **Modular Toggles:** Enable or disable every feature of the toolkit independently.
 

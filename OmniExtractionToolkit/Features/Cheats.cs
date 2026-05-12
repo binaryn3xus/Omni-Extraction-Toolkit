@@ -13,53 +13,60 @@ namespace OmniExtractionToolkit.Features
         [HarmonyPatch(typeof(PhysGrabObjectImpactDetector), "BreakRPC")]
         public static class LootDamage_Patch
         {
-            static void Prefix(PhysGrabObjectImpactDetector __instance, ref float valueLost, bool _loseValue)
+            static void Prefix(PhysGrabObjectImpactDetector __instance, ref float valueLost, bool _loseValue, PhotonMessageInfo _info)
             {
-                ValuableObject valObj = Traverse.Create(__instance).Field<ValuableObject>("valuableObject").Value;
-                if (_loseValue && valObj != null)
+                // AUTHORITY FIX: Only the Host's multiplier and math should matter.
+                if (PhotonNetwork.IsMasterClient && _info.Sender.IsMasterClient && _loseValue)
                 {
-                    float multiplier = OmniExtractionToolkitPlugin.DamageMultiplier.Value;
-                    
-                    Traverse tVal = Traverse.Create(valObj);
-                    float currentVal = tVal.Field<float>("dollarValueCurrent").Value;
-                    float originalVal = tVal.Field<float>("dollarValueOriginal").Value;
-
-                    // 1. Only apply compounding scaling if we are in "Buff Mode" (Multiplier is negative)
-                    // If we are doing normal damage, we don't want the items to explode instantly.
-                    if (multiplier < 0)
+                    ValuableObject valObj = Traverse.Create(__instance).Field<ValuableObject>("valuableObject").Value;
+                    if (valObj != null)
                     {
-                        float scalingRatio = (originalVal > 0) ? (currentVal / originalVal) : 1f;
-                        valueLost *= scalingRatio * multiplier;
-                    }
-                    else
-                    {
-                        valueLost *= multiplier;
-                    }
+                        float multiplier = OmniExtractionToolkitPlugin.DamageMultiplier.Value;
+                        Traverse tVal = Traverse.Create(valObj);
+                        float currentVal = tVal.Field<float>("dollarValueCurrent").Value;
+                        float originalVal = tVal.Field<float>("dollarValueOriginal").Value;
 
-                    // 2. Prevent item value from exceeding $1B
-                    float newVal = currentVal - valueLost;
-                    if (newVal > 1000000000f)
-                    {
-                        valueLost = currentVal - 1000000000f;
-                    }
+                        if (multiplier < 0)
+                        {
+                            float scalingRatio = (originalVal > 0) ? (currentVal / originalVal) : 1f;
+                            valueLost *= scalingRatio * multiplier;
+                        }
+                        else
+                        {
+                            valueLost *= multiplier;
+                        }
 
-                    // 3. Update the Map Total (haulGoalMax) - LIVE FEEDBACK
-                    if (RoundDirector.instance != null)
-                    {
-                        Traverse t = Traverse.Create(RoundDirector.instance);
-                        long currentMax = t.Field<int>("haulGoalMax").Value;
-                        
-                        // valueLost is positive for damage (decreases total) 
-                        // and negative for buffs (increases total)
-                        long newMax = currentMax - (int)valueLost; 
-                        
-                        // Safety Clamps: Ensure Map Total stays within 0 and 2.1B (Max Int32)
-                        if (newMax > 2100000000) newMax = 2100000000;
-                        if (newMax < 0) newMax = 0;
+                        float newVal = currentVal - valueLost;
+                        if (newVal > 1000000000f)
+                        {
+                            valueLost = currentVal - 1000000000f;
+                        }
 
-                        t.Field("haulGoalMax").SetValue((int)newMax);
+                        if (RoundDirector.instance != null)
+                        {
+                            Traverse t = Traverse.Create(RoundDirector.instance);
+                            long currentMax = t.Field<int>("haulGoalMax").Value;
+                            long newMax = currentMax - (int)valueLost; 
+                            
+                            if (newMax > 2100000000) newMax = 2100000000;
+                            if (newMax < 0) newMax = 0;
+
+                            t.Field("haulGoalMax").SetValue((int)newMax);
+                        }
                     }
                 }
+            }
+        }
+
+        // --- JUMP HEIGHT CHEAT ---
+        [HarmonyPatch(typeof(PlayerController), "Update")]
+        public static class JumpHeight_Patch
+        {
+            static void Postfix(PlayerController __instance)
+            {
+                // Correct field name is JumpForce (public)
+                float originalJump = 20f; // Game default
+                __instance.JumpForce = originalJump * OmniExtractionToolkitPlugin.JumpHeightMultiplier.Value;
             }
         }
 
