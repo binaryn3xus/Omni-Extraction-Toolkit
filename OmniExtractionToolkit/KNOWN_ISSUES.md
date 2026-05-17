@@ -4,7 +4,7 @@ This list tracks currently identified bugs, logical quirks, and technical limita
 
 ### 🐛 Current Issues
 
-__None Known Right Now__
+* Cart Shrink can get out of sync with other players. Its funny to look at but annoying haha.
 
 ### ⚙️ Technical Limitations
 * **Physical Transformations:** Changes to scale (Cart Shrink) and mass (Weight Reduction) are applied by the Host to ensure network synchronization. If you are a client and the host doesn't have the mod, items will not shrink.
