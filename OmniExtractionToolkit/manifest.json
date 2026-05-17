@@ -1,6 +1,6 @@
 {
     "name": "Omni_Extraction_Toolkit",
-    "version_number": "1.0.5",
+    "version_number": "1.0.6",
     "website_url": "https://github.com/binaryn3xus/Omni-Extraction-Toolkit/",
     "description": "The ultimate R.E.P.O. suite: Manual loot scanner, synced dynamic HUD, and team-shared upgrades. Features item shrinking, profit-buffing loot damage, and infinite resources. Clean, modular, and multiplayer ready.",
     "dependencies": [

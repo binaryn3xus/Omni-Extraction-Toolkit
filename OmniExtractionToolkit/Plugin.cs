@@ -7,7 +7,7 @@ using UnityEngine;
 namespace OmniExtractionToolkit
 {
     [BepInDependency("nickklmao.repoconfig")]
-    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.5")]
+    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.6")]
     public class OmniExtractionToolkitPlugin : BaseUnityPlugin
     {
         // --- SCANNER SETTINGS ---
@@ -36,6 +36,7 @@ namespace OmniExtractionToolkit
 
         // --- CHEAT SETTINGS (CLIENT-SIDE) ---
         public static ConfigEntry<bool> InfiniteHealth;
+        public static ConfigEntry<KeyCode> HealKey;
         public static ConfigEntry<bool> InfiniteBattery;
         public static ConfigEntry<bool> InfiniteStamina;
         public static ConfigEntry<float> JumpHeightMultiplier;
@@ -93,6 +94,7 @@ namespace OmniExtractionToolkit
 
             // Cheats (Client-Side)
             InfiniteHealth = Config.Bind("Cheats (Client-Side)", "Infinite Health", false, "Health bar stays at 100%. (Still feel damage effects)");
+            HealKey = Config.Bind("Cheats (Client-Side)", "Heal Hotkey", KeyCode.H, "Key to instantly refill health to 100%.");
             InfiniteBattery = Config.Bind("Cheats (Client-Side)", "Infinite Battery & Ammo", false, "All tools and weapons stay at 100% charge.");
             InfiniteStamina = Config.Bind("Cheats (Client-Side)", "Infinite Stamina", false, "Never run out of energy while sprinting.");
             JumpHeightMultiplier = Config.Bind("Cheats (Client-Side)", "Jump Height Multiplier", 1.0f, new ConfigDescription("Increase player jump height.", new AcceptableValueRange<float>(1f, 5f)));
@@ -102,9 +104,9 @@ namespace OmniExtractionToolkit
 
             // Cart Shrink (Host Only)
             EnableCartShrink = Config.Bind("Cart Shrink (Host Only)", "Enable Cart Shrink", false, "Shrink items when they are placed in a cart.");
-            CartShrinkFactor = Config.Bind("Cart Shrink (Host Only)", "Shrink Factor", 0.25f, new ConfigDescription("How much to shrink items (0.1 = tiny, 1.0 = normal).", new AcceptableValueRange<float>(0.1f, 1f)));
+            CartShrinkFactor = Config.Bind("Cart Shrink (Host Only)", "Shrink Factor", 0.3f, new ConfigDescription("How much to shrink items (0.1 = tiny, 1.0 = normal).", new AcceptableValueRange<float>(0.1f, 1f)));
             CartShrinkSpeed = Config.Bind("Cart Shrink (Host Only)", "Shrink Speed", 3.0f, new ConfigDescription("How fast items transition between sizes (1 = slow, 20 = instant).", new AcceptableValueRange<float>(1f, 20f)));
-            CartShrinkFieldSize = Config.Bind("Cart Shrink (Host Only)", "Shrink Field Size", 1.0f, new ConfigDescription("Multiplier for the storage box detection area (1.0 = normal).", new AcceptableValueRange<float>(0.1f, 5f)));
+            CartShrinkFieldSize = Config.Bind("Cart Shrink (Host Only)", "Shrink Field Size", 1.25f, new ConfigDescription("Multiplier for the storage box detection area (1.0 = normal).", new AcceptableValueRange<float>(0.1f, 5f)));
             EnableWeightReduction = Config.Bind("Cart Shrink (Host Only)", "Reduce Item Weight", true, "When enabled, weight is reduced proportionally to the Shrink Factor.");
         }
 

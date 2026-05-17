@@ -6,6 +6,8 @@ The ultimate quality-of-life and cheat suite for R.E.P.O. Modernize your HUD, sy
 
 ## 🕹️ Quick Controls
 *   **Manual Scan**: Press **`F`** to ping all nearby loot and cosmetics.
+*   **Instant Heal**: Press **`H`** to instantly refill your health to 100%.
+*   **Note**: All hotkeys can be remapped in the **REPOConfig** menu.
 *   **Configuration**: All features are toggleable in the **REPOConfig** menu.
 
 ---

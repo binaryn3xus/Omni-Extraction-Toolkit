@@ -9,26 +9,30 @@ namespace OmniExtractionToolkit.Features
 {
     public static class CheatPatches
     {
-        // --- INFINITE HEALTH ---
+        // --- INFINITE HEALTH & MANUAL HEAL ---
         [HarmonyPatch(typeof(PlayerHealth), "Update")]
         public static class InfiniteHealth_Patch
         {
             static void Postfix(PlayerHealth __instance)
             {
-                if (!OmniExtractionToolkitPlugin.InfiniteHealth.Value) return;
-
                 Traverse t = Traverse.Create(__instance);
                 PlayerAvatar avatar = t.Field<PlayerAvatar>("playerAvatar").Value;
 
                 // Ensure we only refill the local player's health
                 if (avatar != null && Traverse.Create(avatar).Field<bool>("isLocal").Value)
                 {
-                    int currentHealth = t.Field<int>("health").Value;
-                    int maxHealth = t.Field<int>("maxHealth").Value;
+                    bool infiniteOn = OmniExtractionToolkitPlugin.InfiniteHealth.Value;
+                    bool hotkeyPressed = Input.GetKeyDown(OmniExtractionToolkitPlugin.HealKey.Value);
 
-                    if (currentHealth < maxHealth)
+                    if (infiniteOn || hotkeyPressed)
                     {
-                        t.Field("health").SetValue(maxHealth);
+                        int currentHealth = t.Field<int>("health").Value;
+                        int maxHealth = t.Field<int>("maxHealth").Value;
+
+                        if (currentHealth < maxHealth)
+                        {
+                            t.Field("health").SetValue(maxHealth);
+                        }
                     }
                 }
             }
