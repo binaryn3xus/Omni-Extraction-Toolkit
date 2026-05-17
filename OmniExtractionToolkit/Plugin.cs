@@ -7,7 +7,7 @@ using UnityEngine;
 namespace OmniExtractionToolkit
 {
     [BepInDependency("nickklmao.repoconfig")]
-    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.4")]
+    [BepInPlugin("com.binaryn3xus.repo.omniextraction", "Omni-Extraction Toolkit", "1.0.5")]
     public class OmniExtractionToolkitPlugin : BaseUnityPlugin
     {
         // --- SCANNER SETTINGS ---
@@ -69,16 +69,16 @@ namespace OmniExtractionToolkit
         {
             // Scanner
             ScanKey = Config.Bind("Scanner", "ScanKey", KeyCode.F, "Key to trigger a manual scan");
-            ScanRadius = Config.Bind("Scanner", "ScanRadius", 30f, new ConfigDescription("Radius", new AcceptableValueRange<float>(1f, 100f)));
+            ScanRadius = Config.Bind("Scanner", "ScanRadius", 50f, new ConfigDescription("Radius", new AcceptableValueRange<float>(1f, 100f)));
             ScanCooldown = Config.Bind("Scanner", "ScanCooldown", 5f, new ConfigDescription("Cooldown", new AcceptableValueRange<float>(0.1f, 30f)));
 
             // HUD
             HUDX = Config.Bind("HUD", "Horizontal Position", 100f, new ConfigDescription("X% (0=Left, 100=Right)", new AcceptableValueRange<float>(0f, 100f)));
-            HUDY = Config.Bind("HUD", "Vertical Position", 0f, new ConfigDescription("Y% (0=Bottom, 100=Top)", new AcceptableValueRange<float>(0f, 100f)));
+            HUDY = Config.Bind("HUD", "Vertical Position", 5f, new ConfigDescription("Y% (0=Bottom, 100=Top)", new AcceptableValueRange<float>(0f, 100f)));
             ShowHeldItem = Config.Bind("HUD", "Show Held Item Value", true, "Show the name and value of the item you are currently holding (Valuables only).");
 
             // Team Upgrades (Host Only)
-            ShareUpgrades = Config.Bind("Team Upgrades (Host Only)", "Master Toggle", false, "When enabled, any upgrade anyone buys is shared with everyone.");
+            ShareUpgrades = Config.Bind("Team Upgrades (Host Only)", "Master Toggle", true, "When enabled, any upgrade anyone buys is shared with everyone.");
             ShareHealth = Config.Bind("Team Upgrades (Host Only)", "Health Upgrade", true);
             ShareEnergy = Config.Bind("Team Upgrades (Host Only)", "Energy Upgrade", true);
             ShareSprint = Config.Bind("Team Upgrades (Host Only)", "Sprint Speed Upgrade", true);
@@ -102,10 +102,10 @@ namespace OmniExtractionToolkit
 
             // Cart Shrink (Host Only)
             EnableCartShrink = Config.Bind("Cart Shrink (Host Only)", "Enable Cart Shrink", false, "Shrink items when they are placed in a cart.");
-            CartShrinkFactor = Config.Bind("Cart Shrink (Host Only)", "Shrink Factor", 1.0f, new ConfigDescription("How much to shrink items (0.1 = tiny, 1.0 = normal).", new AcceptableValueRange<float>(0.1f, 1f)));
+            CartShrinkFactor = Config.Bind("Cart Shrink (Host Only)", "Shrink Factor", 0.25f, new ConfigDescription("How much to shrink items (0.1 = tiny, 1.0 = normal).", new AcceptableValueRange<float>(0.1f, 1f)));
             CartShrinkSpeed = Config.Bind("Cart Shrink (Host Only)", "Shrink Speed", 3.0f, new ConfigDescription("How fast items transition between sizes (1 = slow, 20 = instant).", new AcceptableValueRange<float>(1f, 20f)));
-            CartShrinkFieldSize = Config.Bind("Cart Shrink (Host Only)", "Shrink Field Size", 1.25f, new ConfigDescription("Multiplier for the storage box detection area (1.0 = normal).", new AcceptableValueRange<float>(0.1f, 5f)));
-            EnableWeightReduction = Config.Bind("Cart Shrink (Host Only)", "Reduce Item Weight", false, "When enabled, weight is reduced proportionally to the Shrink Factor.");
+            CartShrinkFieldSize = Config.Bind("Cart Shrink (Host Only)", "Shrink Field Size", 1.0f, new ConfigDescription("Multiplier for the storage box detection area (1.0 = normal).", new AcceptableValueRange<float>(0.1f, 5f)));
+            EnableWeightReduction = Config.Bind("Cart Shrink (Host Only)", "Reduce Item Weight", true, "When enabled, weight is reduced proportionally to the Shrink Factor.");
         }
 
         public static string GetBindingPath(KeyCode keyCode)

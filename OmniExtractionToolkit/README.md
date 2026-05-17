@@ -1,64 +1,49 @@
-# Omni-Extraction Toolkit - The Ultimate R.E.P.O. Mod
+# 💎 Omni-Extraction Toolkit
 
-The **Omni-Extraction Toolkit** is an all-in-one suite designed to modernize the R.E.P.O. interface and gameplay. It combines tactical scanning, dynamic HUD tracking, and team-based synchronization into a single, high-performance package.
-
-It is modular and highly customizable—use the **REPOConfig** menu in-game to tailor it to your playstyle.
+The ultimate quality-of-life and cheat suite for R.E.P.O. Modernize your HUD, sync your team, and maximize your profits.
 
 ---
 
-## ✨ Main Features
-
-### Tactical Gold Scanner
-Stop hunting for that last tiny plate. Press **`F`** at any time to ping every valuable and cosmetic box in range.
-
-* **Gold Brackets:** Instantly highlights loot with the game's native discovery effect.
-* **Team Friendly:** These pings are local to your screen only, so you won't clutter your friends' HUDs.
-* **Tracker Overhaul:** If you are using the in-game Valuable Tracker tool, its range is boosted to 500m, allowing you to track loot through walls across the entire map.
-
-### Dynamic HUD & Map Tracking
-Keep your eyes on the job, not the truck monitor.
-
-* **Real-time Stats:** Track your current **Haul**, the **Round Goal**, and the **Map Total** (potential value of all loot on the level) at a glance.
-* **Live Updates:** The Map Total now updates in real-time as items are damaged or buffed.
-* **Held Item Readout:** When you grab a valuable, its name and price pop up at the bottom of the screen. (Hidden for weapons and tools to keep your view clear).
-* **Clean Transitions:** The HUD automatically hides during loading screens, round intros, or whenever you open a menu.
-
-### Team Upgrades (Host Only)
-Progress as a team. When anyone in the lobby buys an upgrade (Health, Stamina, Speed, etc.), **every player receives it instantly.**
-
-* Includes individual stat toggles so you can decide exactly what to share.
-
-### Cart Shrink (Host Only)
-Maximize your carrying capacity by shrinking items once they are placed in a cart.
-
-* **Smart Scaling:** Items automatically shrink when put into a cart's storage field and return to normal size when removed.
-* **Live Field:** Items shrink the moment you hold them over the cart, providing instant visual feedback.
-* **Weight Reduction:** Optional toggle to reduce the weight of items proportionally to their size, making carts much easier to push.
-* **Customizable Speed:** Adjust how fast items transition between sizes using the Shrink Speed slider.
+## 🕹️ Quick Controls
+*   **Manual Scan**: Press **`F`** to ping all nearby loot and cosmetics.
+*   **Configuration**: All features are toggleable in the **REPOConfig** menu.
 
 ---
 
-## 😈 Gameplay Tweaks (Cheats)
+## 🚀 Key Features
 
-* **Infinite Health:** Your health bar stays at 100%. You will still feel damage effects (screen glitch, sound), but you will never lose health.
-* **Reverse Damage (Profit Buffing):** Set the "Loot Damage Multiplier" to a negative number (e.g., -2.0). Now, slamming items against walls actually **increases their value**. Turn a cheap $100 plate into a massive jackpot just by beating it up. (Value is safely capped to prevent integer overflows).
-* **Infinite Resources:** Toggleable infinite battery/ammo for all tools and weapons, and infinite player stamina for endless sprinting.
-* **Mobility Tweaks:** Adjustable Jump Height multiplier.
+### 🔍 Tactical Scanner
+*   **Manual Ping**: Instantly highlight all loot in range with gold brackets.
+*   **Range Boost**: Extends the vanilla Valuable Tracker tool range to **500m**.
+*   **Team Safe**: Pings are local-only—no cluttering your friends' screens.
 
----
-
-## 🛠️ Customization
-
-Everything is handled through the **REPOConfig** menu in-game.
-
-* **HUD Fine-Tuning:** Use 0-100% sliders to move the HUD anywhere on your screen.
-* **Scanner Control:** Adjust your scan radius (1m–100m) and cooldown times.
-* **Modular Toggles:** Enable or disable every feature of the toolkit independently.
+### 📊 Dynamic HUD
+*   **Live Map Stats**: Tracks **Haul**, **Round Goal**, and **Map Total** (total loot value).
+*   **Network Synced**: Map Total stays accurate for clients, even when the Host buffs loot.
+*   **Item Readout**: Displays the name and current price of any item you are holding.
+*   **Smart Hide**: HUD automatically hides in menus, intros, and loading screens.
 
 ---
 
-## 📥 Installation
+## 👑 Host-Only Features (Multiplayer Compatible)
 
-1. Ensure you have **BepInEx** and **REPOConfig** installed.
-2. Drop `OmniExtractionToolkit.dll` into your `REPO/BepInEx/plugins/` folder.
-3. Load up and start extracting.
+### 👥 Shared Upgrades
+*   **Team Progress**: Upgrades bought by *anyone* are instantly shared with the **entire lobby**.
+*   **Granular Control**: Toggle sharing for specific stats (Health, Stamina, Speed, etc.).
+
+### 🛒 Cart Shrinking
+*   **Space Saver**: Items shrink when placed in carts, letting you fit significantly more loot.
+*   **Weight Reduction**: Optional toggle to make shrunk items proportionally lighter.
+*   **Smooth Scaling**: Items transition between sizes visually as they enter/exit the cart.
+
+### 😈 Gameplay Tweaks
+*   **Loot Multiplier**: Set to negative to **increase item value** by hitting them.
+*   **Infinite Resources**: Optional infinite Health, Battery/Ammo, and Stamina.
+*   **Mobility**: Adjustable Jump Height multiplier.
+
+---
+
+## 🛠️ Installation
+1. Install **BepInEx** and **REPOConfig**.
+2. Drop `OmniExtractionToolkit.dll` into `REPO/BepInEx/plugins/`.
+3. Configure your settings in the in-game menu.

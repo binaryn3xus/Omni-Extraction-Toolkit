@@ -40,8 +40,9 @@ namespace OmniExtractionToolkit.Features
         {
             static void Prefix(PhysGrabObjectImpactDetector __instance, ref float valueLost, bool _loseValue, PhotonMessageInfo _info)
             {
-                // AUTHORITY FIX: Only the Host's multiplier and math should matter.
-                if (PhotonNetwork.IsMasterClient && _info.Sender.IsMasterClient && _loseValue)
+                // AUTHORITY FIX: The Host is the authority on item values and map goals.
+                // We apply the multiplier here so it affects all damage reported by any player.
+                if (PhotonNetwork.IsMasterClient && _loseValue)
                 {
                     ValuableObject valObj = Traverse.Create(__instance).Field<ValuableObject>("valuableObject").Value;
                     if (valObj != null)
@@ -121,25 +122,35 @@ namespace OmniExtractionToolkit.Features
         public static class SharedUpgrades_Patch
         {
             private static bool _syncing = false;
-            private static bool ShouldSync => OmniExtractionToolkitPlugin.ShareUpgrades.Value && !_syncing && PhotonNetwork.IsMasterClient;
+            private static bool ShouldSync => OmniExtractionToolkitPlugin.ShareUpgrades.Value && !_syncing && PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
 
             private static void SyncToAll(string _steamID, int value, string rpcMethodName)
             {
-                if (PunManager.instance == null) return;
+                if (string.IsNullOrEmpty(_steamID) || PunManager.instance == null) return;
                 PhotonView pv = PunManager.instance.GetComponent<PhotonView>();
                 if (pv == null) return;
+
                 _syncing = true;
-                foreach (PlayerAvatar player in Object.FindObjectsOfType<PlayerAvatar>())
+                try
                 {
-                    string targetID = SemiFunc.PlayerGetSteamID(player);
-                    if (!string.IsNullOrEmpty(targetID) && targetID != _steamID)
+                    foreach (PlayerAvatar player in Object.FindObjectsOfType<PlayerAvatar>())
                     {
-                        MethodInfo m = typeof(PunManager).GetMethod(rpcMethodName);
-                        if (m != null) m.Invoke(PunManager.instance, new object[] { targetID, value });
-                        pv.RPC(rpcMethodName, RpcTarget.Others, new object[] { targetID, value });
+                        string targetID = SemiFunc.PlayerGetSteamID(player);
+                        if (!string.IsNullOrEmpty(targetID) && targetID != _steamID)
+                        {
+                            // 1. Update the host's local state for this player
+                            MethodInfo m = typeof(PunManager).GetMethod(rpcMethodName);
+                            if (m != null) m.Invoke(PunManager.instance, new object[] { targetID, value });
+
+                            // 2. Broadcast the update to all other clients
+                            pv.RPC(rpcMethodName, RpcTarget.Others, new object[] { targetID, value });
+                        }
                     }
                 }
-                _syncing = false;
+                finally
+                {
+                    _syncing = false;
+                }
             }
 
             [HarmonyPostfix] [HarmonyPatch("UpgradePlayerHealth")] static void H_P(string _steamID, int value) { if (ShouldSync && OmniExtractionToolkitPlugin.ShareHealth.Value) SyncToAll(_steamID, value, "UpgradePlayerHealth"); }

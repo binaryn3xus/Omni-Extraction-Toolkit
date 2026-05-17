@@ -16,6 +16,9 @@ namespace OmniExtractionToolkit.Features
         private bool isShrunk = false;
         private bool massModified = false;
         private Rigidbody rb;
+        private float originalDrag;
+        private float originalAngularDrag;
+        private List<Collider> colliders = new List<Collider>();
         private static List<PhysGrabCart> activeCarts = new List<PhysGrabCart>();
         private static float lastCartScan = 0f;
 
@@ -32,6 +35,15 @@ namespace OmniExtractionToolkit.Features
             {
                 originalDetectionSize = roomVolumeCheck.currentSize;
             }
+
+            if (rb != null)
+            {
+                originalDrag = rb.drag;
+                originalAngularDrag = rb.angularDrag;
+            }
+
+            // Cache colliders to modify bounciness later
+            colliders.AddRange(GetComponentsInChildren<Collider>());
         }
 
         private void Update()
@@ -39,7 +51,8 @@ namespace OmniExtractionToolkit.Features
             if (pObj == null || pObj.dead) return;
 
             // Only the Host manages physical transformations to ensure lobby consistency.
-            if (!PhotonNetwork.IsMasterClient) return;
+            // In single-player (not in a room), this will also allow the transformation.
+            if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
 
             // 1. Periodically update list of carts on the map
             if (Time.time - lastCartScan > 3f)
@@ -142,7 +155,37 @@ namespace OmniExtractionToolkit.Features
                 if (Mathf.Abs(rb.mass - targetMass) > 0.01f)
                 {
                     rb.mass = targetMass;
+                    
+                    // COUNTER-BOUNCE: Increase drag significantly to compensate for lower mass and smaller size.
+                    // We use an even higher multiplier (5.0) to combat scripted impulses.
+                    rb.drag = originalDrag + (1.0f / factor) * 5.0f;
+                    rb.angularDrag = originalAngularDrag + (1.0f / factor) * 5.0f;
+                    
+                    // Kill natural bounciness of all colliders
+                    foreach (var col in colliders)
+                    {
+                        if (col != null && col.material != null)
+                        {
+                            col.material.bounciness = 0f;
+                            col.material.bounceCombine = PhysicMaterialCombine.Minimum;
+                        }
+                    }
+
                     massModified = true;
+                }
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            // EXTRA DAMPENING: For shrunk items, manually cap velocity to prevent "super-bounces" 
+            // caused by scripts that add fixed impulse forces (like the square basketball).
+            if (isShrunk && rb != null && !pObj.grabbed)
+            {
+                float maxVel = 1.5f; // Tightened from 4.0
+                if (rb.velocity.magnitude > maxVel)
+                {
+                    rb.velocity = Vector3.ClampMagnitude(rb.velocity, maxVel);
                 }
             }
         }
@@ -152,6 +195,19 @@ namespace OmniExtractionToolkit.Features
             if (rb != null)
             {
                 rb.mass = pObj.massOriginal;
+                rb.drag = originalDrag;
+                rb.angularDrag = originalAngularDrag;
+
+                // Restore bounciness
+                foreach (var col in colliders)
+                {
+                    if (col != null && col.material != null)
+                    {
+                        col.material.bounciness = 0.4f; 
+                        col.material.bounceCombine = PhysicMaterialCombine.Average;
+                    }
+                }
+
                 massModified = false;
             }
         }

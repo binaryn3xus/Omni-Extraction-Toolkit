@@ -12,6 +12,9 @@ OmniExtractionToolkit/obj/
 # Log files
 *.log
 
+# C# Dev Kit
+*.lscache
+
 # Reference source
 ExampleMods/
 GameSource/

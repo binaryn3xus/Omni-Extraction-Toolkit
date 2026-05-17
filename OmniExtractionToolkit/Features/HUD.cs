@@ -4,6 +4,8 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 using OmniExtractionToolkit;
+using Photon.Pun;
+using ExitGames.Client.Photon;
 
 namespace OmniExtractionToolkit.Features
 {
@@ -118,6 +120,9 @@ namespace OmniExtractionToolkit.Features
 
         private void Update()
         {
+            // Safety Check: If the canvas or component is being destroyed, stop.
+            if (this == null || !gameObject.activeInHierarchy) return;
+
             bool isGameMain = GameDirector.instance != null && GameDirector.instance.currentState == GameDirector.gameState.Main;
             bool isMenuClosed = true;
             if (MenuManager.instance != null) isMenuClosed = Traverse.Create(MenuManager.instance).Field<int>("currentMenuState").Value == 1;
@@ -130,12 +135,58 @@ namespace OmniExtractionToolkit.Features
                 mapText.gameObject.SetActive(show);
                 if (show && RoundDirector.instance != null) {
                     Traverse t = Traverse.Create(RoundDirector.instance);
-                    int current = t.Field("currentHaul").GetValue<int>();
-                    int total = t.Field("haulGoalMax").GetValue<int>();
-                    int goal = t.Field("haulGoal").GetValue<int>();
                     
-                    // REVERTED: Matching raw units to vanilla HUD ($1,327 etc)
-                    mapText.text = $"<color=white>Haul: <color=yellow>${current}</color> / Goal: ${goal}\nMap Total: <color=green>${total}</color></color>";
+                    // 1. Get local values (Host is the source of truth)
+                    object currentHaul = t.Field("currentHaul").GetValue();
+                    object totalHaul = t.Field("haulGoalMax").GetValue();
+                    
+                    // NEW: Use extractionHaulGoal to match what the player sees at the extraction point.
+                    // Fallback to haulGoal if extractionHaulGoal is 0 or not yet set.
+                    object goalHaul = t.Field("extractionHaulGoal").GetValue();
+                    if (goalHaul == null || (int)goalHaul == 0)
+                    {
+                        goalHaul = t.Field("haulGoal").GetValue();
+                    }
+
+                    // 2. Network Sync (Master Client pushes, Clients pull)
+                    if (PhotonNetwork.InRoom)
+                    {
+                        if (PhotonNetwork.IsMasterClient)
+                        {
+                            // Host: Update Room Properties if they change
+                            int localTotal = (totalHaul is int) ? (int)totalHaul : 0;
+                            int localGoal = (goalHaul is int) ? (int)goalHaul : 0;
+                            
+                            bool needsUpdate = false;
+                            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
+
+                            if (!PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("OmniMapTotal") || (int)PhotonNetwork.CurrentRoom.CustomProperties["OmniMapTotal"] != localTotal)
+                            {
+                                props["OmniMapTotal"] = localTotal;
+                                needsUpdate = true;
+                            }
+                            if (!PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("OmniMapGoal") || (int)PhotonNetwork.CurrentRoom.CustomProperties["OmniMapGoal"] != localGoal)
+                            {
+                                props["OmniMapGoal"] = localGoal;
+                                needsUpdate = true;
+                            }
+
+                            if (needsUpdate) PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+                        }
+                        else
+                        {
+                            // Client: Pull from Room Properties if available
+                            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("OmniMapTotal", out object syncedTotal))
+                                totalHaul = syncedTotal;
+                            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("OmniMapGoal", out object syncedGoal))
+                                goalHaul = syncedGoal;
+                        }
+                    }
+
+                    if (currentHaul != null && totalHaul != null && goalHaul != null)
+                    {
+                        mapText.text = $"<color=white>Haul: <color=yellow>${currentHaul}</color> / Goal: ${goalHaul}\nMap Total: <color=green>${totalHaul}</color></color>";
+                    }
                 } else {
                     mapText.text = ""; 
                 }
